@@ -26,7 +26,7 @@ func TestTweetPublisher_Publish(t *testing.T) {
 
 	tweetRepositoryMock := mocks.NewMockTweetRepository(ctrl)
 	eventBusMock := mocks.NewMockEventBus(ctrl)
-	p := NewTweetPublisher(tweetRepositoryMock, eventBusMock)
+	p := NewTweetCreator(tweetRepositoryMock, eventBusMock)
 
 	createdAt := time.Now()
 	inputTweet, _ := domain.NewTweet("tweet-uuid", "user-uuid", "tweet content", createdAt)

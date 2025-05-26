@@ -12,7 +12,7 @@ type TweetCreator struct {
 	eventBus        ports.EventBus
 }
 
-func NewTweetPublisher(tweetRepository ports.TweetRepository, eventBus ports.EventBus) *TweetCreator {
+func NewTweetCreator(tweetRepository ports.TweetRepository, eventBus ports.EventBus) *TweetCreator {
 	return &TweetCreator{tweetRepository: tweetRepository, eventBus: eventBus}
 }
 
