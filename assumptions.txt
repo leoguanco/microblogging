@@ -1,0 +1,12 @@
+# Business Assumptions for Microblogging Service
+
+1.  **Valid Users**: All user IDs passed in requests are assumed to be valid and existing. No user registration or authentication is in scope for this version.
+2.  **User ID Transmission**: User identifiers for actions (e.g., who is posting, who is following) can be sent via headers (e.g., `X-User-ID`), path parameters, or request bodies. The choice will be made for API clarity.
+3.  **Read Optimization**: The system, especially timeline generation, must be optimized for fast read access.
+4.  **Tweet Character Limit**: Tweets are limited to 280 characters.
+5.  **Scalability Focus**: The architecture should be designed to conceptually support millions of users.
+6.  **No Frontend**: This is a backend-only challenge; no frontend development is required.
+7.  **Timeline Content**: Timelines display tweets from users that the requesting user follows.
+8.  **Stateless Services**: Application services will be designed to be stateless to facilitate horizontal scaling.
+9.  **Timeline Generation Strategy**: A "fan-out-on-write" approach is preferred for timelines. When a user posts a tweet, it's pushed to their followers' timeline caches. This makes timeline reads very fast. Asynchronous processing can be used for the fan-out.
+10. **User cannot edit a tweet**: To simplify the exercise, user can't modified a tweet.
