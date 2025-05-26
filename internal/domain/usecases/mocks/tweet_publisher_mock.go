@@ -42,9 +42,9 @@ func (m *MockTweetPublisher) EXPECT() *MockTweetPublisherMockRecorder {
 }
 
 // Publish mocks base method.
-func (m *MockTweetPublisher) Publish(ctx context.Context, tweet domain.Tweet) error {
+func (m *MockTweetPublisher) Create(ctx context.Context, tweet domain.Tweet) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Publish", ctx, tweet)
+	ret := m.ctrl.Call(m, "Create", ctx, tweet)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
@@ -52,5 +52,5 @@ func (m *MockTweetPublisher) Publish(ctx context.Context, tweet domain.Tweet) er
 // Publish indicates an expected call of Publish.
 func (mr *MockTweetPublisherMockRecorder) Publish(ctx, tweet any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockTweetPublisher)(nil).Publish), ctx, tweet)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockTweetPublisher)(nil).Create), ctx, tweet)
 }

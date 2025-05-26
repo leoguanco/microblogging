@@ -2,10 +2,9 @@ package usecases
 
 import (
 	"context"
-	"microblogging/internal/domain"
 )
 
-//go:generate mockgen -destination=mocks/tweet_publisher_mock.go -package=mocks . TweetPublisher
-type TweetPublisher interface {
-	Publish(ctx context.Context, tweet domain.Tweet) error
+//go:generate mockgen -destination=mocks/tweet_creator_mock.go -package=mocks . TweetCreator
+type TweetCreator interface {
+	Create(ctx context.Context, tweetID, userID, content string) error
 }

@@ -4,18 +4,30 @@ import (
 	"context"
 	"microblogging/internal/domain"
 	"microblogging/internal/domain/ports"
+	"time"
 )
 
-type TweetPublisher struct {
+type TweetCreator struct {
 	tweetRepository ports.TweetRepository
+	eventBus        ports.EventBus
 }
 
-func NewTweetPublisher(tweetRepository ports.TweetRepository) *TweetPublisher {
-	return &TweetPublisher{tweetRepository: tweetRepository}
+func NewTweetPublisher(tweetRepository ports.TweetRepository, eventBus ports.EventBus) *TweetCreator {
+	return &TweetCreator{tweetRepository: tweetRepository, eventBus: eventBus}
 }
 
-func (p TweetPublisher) Publish(ctx context.Context, tweet domain.Tweet) error {
-	err := p.tweetRepository.Save(ctx, tweet)
+func (p TweetCreator) Create(ctx context.Context, tweetID, userID, content string, createdAt time.Time) error {
+	tweet, err := domain.NewTweet(tweetID, userID, content, createdAt)
+	if err != nil {
+		return err
+	}
 
-	return err
+	err = p.tweetRepository.Save(ctx, *tweet)
+	if err != nil {
+		return err
+	}
+
+	err = p.eventBus.Publish(ctx, tweet.PullDomainEvents())
+
+	return nil
 }
