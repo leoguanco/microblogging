@@ -1,7 +1,7 @@
 .PHONY: build run test clean docker-build docker-run docker-compose-up docker-compose-down update-deps
 
 build:
-	go build -o microblog ./cmd/server
+	go build -o microblog ./cmd/api
 
 run: build
 	./microblog
