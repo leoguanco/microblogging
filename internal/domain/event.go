@@ -1,4 +1,3 @@
 package domain
 
-type Event struct {
-}
+type Event map[string]interface{}

@@ -42,15 +42,20 @@ func (m *MockEventBus) EXPECT() *MockEventBusMockRecorder {
 }
 
 // Publish mocks base method.
-func (m *MockEventBus) Publish(ctx context.Context, event domain.Event) error {
+func (m *MockEventBus) Publish(ctx context.Context, events ...[]domain.Event) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Publish", ctx, event)
+	varargs := []any{ctx}
+	for _, a := range events {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Publish", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Publish indicates an expected call of Publish.
-func (mr *MockEventBusMockRecorder) Publish(ctx, event any) *gomock.Call {
+func (mr *MockEventBusMockRecorder) Publish(ctx any, events ...any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockEventBus)(nil).Publish), ctx, event)
+	varargs := append([]any{ctx}, events...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockEventBus)(nil).Publish), varargs...)
 }
