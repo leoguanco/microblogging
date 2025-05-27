@@ -12,6 +12,14 @@ type InMemoryTimelineRepository struct {
 	mu        sync.RWMutex
 }
 
+func (r *InMemoryTimelineRepository) Update(ctx context.Context, timeline domain.Timeline) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	r.timelines[timeline.UserID] = timeline
+	return nil
+}
+
 func NewInMemoryTimelineRepository() ports.TimelineRepository {
 	return &InMemoryTimelineRepository{
 		timelines: make(map[string]domain.Timeline),
@@ -27,22 +35,4 @@ func (r *InMemoryTimelineRepository) Get(ctx context.Context, userID string) (do
 		return domain.Timeline{UserID: userID, Tweets: []domain.Tweet{}}, nil
 	}
 	return timeline, nil
-}
-
-func (r *InMemoryTimelineRepository) AddTweetToTimeline(ctx context.Context, userID string, tweet domain.Tweet) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	timeline, exists := r.timelines[userID]
-	if !exists {
-		timeline = domain.Timeline{
-			UserID: userID,
-			Tweets: []domain.Tweet{},
-		}
-	}
-
-	timeline.Tweets = append(timeline.Tweets, tweet)
-	r.timelines[userID] = timeline
-
-	return nil
 }

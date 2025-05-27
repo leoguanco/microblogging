@@ -6,3 +6,8 @@ type Timeline struct {
 	Total  int
 	Tweets []Tweet
 }
+
+func (t *Timeline) AddTweet(tweet Tweet) {
+	t.Tweets = append(t.Tweets, tweet)
+	t.Total++
+}
