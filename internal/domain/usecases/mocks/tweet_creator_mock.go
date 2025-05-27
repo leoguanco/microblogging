@@ -12,6 +12,7 @@ package mocks
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	gomock "go.uber.org/mock/gomock"
 )
@@ -41,15 +42,15 @@ func (m *MockTweetCreator) EXPECT() *MockTweetCreatorMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockTweetCreator) Create(ctx context.Context, tweetID, userID, content string) error {
+func (m *MockTweetCreator) Create(ctx context.Context, tweetID, userID, content string, createdAt time.Time) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, tweetID, userID, content)
+	ret := m.ctrl.Call(m, "Create", ctx, tweetID, userID, content, createdAt)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockTweetCreatorMockRecorder) Create(ctx, tweetID, userID, content any) *gomock.Call {
+func (mr *MockTweetCreatorMockRecorder) Create(ctx, tweetID, userID, content, createdAt any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockTweetCreator)(nil).Create), ctx, tweetID, userID, content)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockTweetCreator)(nil).Create), ctx, tweetID, userID, content, createdAt)
 }
