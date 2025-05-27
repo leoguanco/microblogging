@@ -1,8 +1,11 @@
 package usecases
 
-import "microblogging/internal/domain"
+import (
+	"context"
+	"microblogging/internal/domain"
+)
 
 //go:generate mockgen -destination=mocks/event_handler_mock.go -package=mocks . EventHandler
 type EventHandler interface {
-	Handle(event domain.Event) error
+	Handle(ctx context.Context, event domain.Event) error
 }
