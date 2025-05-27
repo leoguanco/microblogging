@@ -43,3 +43,20 @@ func (u *User) AlreadyFollow(id string) bool {
 
 	return false
 }
+
+func (u *User) Unfollow(unFolloweeID string) error {
+	if u.UserID == unFolloweeID {
+		return errors.New("cannot unfollow yourself")
+	}
+
+	var follows []string
+	for _, followID := range u.Follows {
+		if followID != unFolloweeID {
+			follows = append(follows, followID)
+		}
+	}
+	u.Follows = follows
+	u.Record(NewUserUnfollowedDomainEvent(u.UserID, unFolloweeID))
+
+	return nil
+}

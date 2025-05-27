@@ -10,20 +10,20 @@ import (
 	"testing"
 )
 
-func TestUserFollower_Follow(t *testing.T) {
+func TestUserUnfollower_Unfollow(t *testing.T) {
 	ctx := context.Background()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	type input struct {
 		ctx        context.Context
-		userID     string
+		followeeID string
 		followerID string
 	}
 
 	userRepositoryMock := mocks.NewMockUserRepository(ctrl)
 	eventBusMock := mocks.NewMockEventBus(ctrl)
-	f := NewUserFollower(userRepositoryMock, eventBusMock)
+	u := NewUserUnfollower(userRepositoryMock, eventBusMock)
 
 	tests := []struct {
 		name  string
@@ -32,25 +32,26 @@ func TestUserFollower_Follow(t *testing.T) {
 		err   error
 	}{
 		{
-			name: "Should return nil when follow a user",
+			name: "Should return nil when unfollow a user",
 			input: input{
 				ctx:        ctx,
-				userID:     "user-uuid",
+				followeeID: "user-uuid",
 				followerID: "follower-uuid",
 			},
 			mock: func() {
 				user := domain.User{
 					UserID:  "follower-uuid",
-					Follows: []string{},
+					Follows: []string{"user-uuid"},
 				}
+
 				userRepositoryMock.EXPECT().Get(ctx, "follower-uuid").Return(user, nil)
 
-				_ = user.Follow("user-uuid")
+				user.Unfollow("user-uuid")
 				userRepositoryMock.EXPECT().Save(ctx, user).Return(nil)
 				eventBusMock.EXPECT().Publish(ctx, []domain.Event{
 					{
 						"AggregateID": "follower-uuid",
-						"Type":        "user_followed",
+						"Type":        "user_unfollowed",
 						"FolloweeID":  "user-uuid",
 					},
 				}).Return(nil)
@@ -61,7 +62,7 @@ func TestUserFollower_Follow(t *testing.T) {
 			name: "Should return an error when get an user",
 			input: input{
 				ctx:        ctx,
-				userID:     "user-uuid",
+				followeeID: "user-uuid",
 				followerID: "follower-uuid",
 			},
 			mock: func() {
@@ -73,50 +74,65 @@ func TestUserFollower_Follow(t *testing.T) {
 			name: "Should return an error when save an user",
 			input: input{
 				ctx:        ctx,
-				userID:     "user-uuid",
+				followeeID: "user-uuid",
 				followerID: "follower-uuid",
 			},
 			mock: func() {
 				user := domain.User{
 					UserID:  "follower-uuid",
-					Follows: []string{},
+					Follows: []string{"user-uuid"},
 				}
+
 				userRepositoryMock.EXPECT().Get(ctx, "follower-uuid").Return(user, nil)
 
-				_ = user.Follow("user-uuid")
+				user.Unfollow("user-uuid")
 				userRepositoryMock.EXPECT().Save(ctx, user).Return(errors.New("internal server error"))
 			},
 			err: errors.New("internal server error"),
 		},
 		{
-			name: "Should return nil when follow a user that already follows",
+			name: "Should return an error when publish in event bus",
 			input: input{
 				ctx:        ctx,
-				userID:     "user-uuid",
+				followeeID: "user-uuid",
 				followerID: "follower-uuid",
 			},
 			mock: func() {
-				userRepositoryMock.EXPECT().Get(ctx, "follower-uuid").Return(domain.User{
+				user := domain.User{
 					UserID:  "follower-uuid",
 					Follows: []string{"user-uuid"},
-				}, nil)
+				}
+
+				userRepositoryMock.EXPECT().Get(ctx, "follower-uuid").Return(user, nil)
+
+				user.Unfollow("user-uuid")
+				userRepositoryMock.EXPECT().Save(ctx, user).Return(nil)
+				eventBusMock.EXPECT().Publish(ctx, []domain.Event{
+					{
+						"AggregateID": "follower-uuid",
+						"Type":        "user_unfollowed",
+						"FolloweeID":  "user-uuid",
+					},
+				}).Return(errors.New("internal server error"))
 			},
-			err: errors.New("already follow"),
+			err: errors.New("internal server error"),
 		},
 		{
-			name: "Should return an error if followerID is the same as my followeeID",
+			name: "Should return an error unfollow yourself",
 			input: input{
 				ctx:        ctx,
-				userID:     "user-uuid",
-				followerID: "user-uuid",
+				followeeID: "follower-uuid",
+				followerID: "follower-uuid",
 			},
 			mock: func() {
-				userRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return(domain.User{
-					UserID:  "user-uuid",
-					Follows: []string{"following-uuid"},
-				}, nil)
+				user := domain.User{
+					UserID:  "follower-uuid",
+					Follows: []string{"user-uuid"},
+				}
+
+				userRepositoryMock.EXPECT().Get(ctx, "follower-uuid").Return(user, nil)
 			},
-			err: errors.New("cannot follow yourself"),
+			err: errors.New("cannot unfollow yourself"),
 		},
 	}
 
@@ -124,7 +140,7 @@ func TestUserFollower_Follow(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
 
-			err := f.Follow(tt.input.ctx, tt.input.userID, tt.input.followerID)
+			err := u.Unfollow(tt.input.ctx, tt.input.followeeID, tt.input.followerID)
 			assert.Equal(t, tt.err, err)
 		})
 	}
