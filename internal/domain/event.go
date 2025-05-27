@@ -1,3 +1,9 @@
 package domain
 
-type Event map[string]interface{}
+import "time"
+
+type Event interface {
+	GetType() string
+	GetAggregateID() string
+	GetTimestamp() time.Time
+}

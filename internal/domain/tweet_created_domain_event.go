@@ -2,12 +2,26 @@ package domain
 
 import "time"
 
-func NewTweetCreatedDomainEvent(tweetID, userID, content string, createdAt time.Time) Event {
-	return Event{
-		"AggregateID": tweetID,
-		"Type":        "tweet_created",
-		"UserID":      userID,
-		"Content":     content,
-		"CreatedAt":   createdAt,
+type TweetCreatedDomainEvent struct {
+	TweetID   string
+	UserID    string
+	Content   string
+	CreatedAt time.Time
+}
+
+func (e *TweetCreatedDomainEvent) GetType() string {
+	return "tweet_created"
+}
+
+func (e *TweetCreatedDomainEvent) GetAggregateID() string {
+	return e.TweetID
+}
+
+func NewTweetCreatedDomainEvent(tweetID, userID, content string, createdAt time.Time) TweetCreatedDomainEvent {
+	return TweetCreatedDomainEvent{
+		TweetID:   tweetID,
+		UserID:    userID,
+		Content:   content,
+		CreatedAt: createdAt,
 	}
 }
