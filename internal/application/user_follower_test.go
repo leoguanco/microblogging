@@ -130,6 +130,86 @@ func TestUserFollower_Follow(t *testing.T) {
 			},
 			err: errors.New("cannot follow yourself"),
 		},
+		{
+			name: "Should return an error when get a followee",
+			input: input{
+				ctx:        ctx,
+				userID:     "user-uuid",
+				followerID: "follower-uuid",
+			},
+			mock: func() {
+				user := domain.User{
+					UserID:  "follower-uuid",
+					Follows: []string{},
+				}
+
+				userRepositoryMock.EXPECT().Get(ctx, "follower-uuid").Return(user, nil)
+
+				_ = user.Follow("user-uuid")
+				userRepositoryMock.EXPECT().Save(ctx, user).Return(nil)
+				userRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return(domain.User{}, errors.New("internal server error"))
+			},
+			err: errors.New("internal server error"),
+		},
+		{
+			name: "Should return error when save a followee",
+			input: input{
+				ctx:        ctx,
+				userID:     "user-uuid",
+				followerID: "follower-uuid",
+			},
+			mock: func() {
+				user := domain.User{
+					UserID:  "follower-uuid",
+					Follows: []string{},
+				}
+
+				followee := domain.User{
+					UserID:  "user-uuid",
+					Follows: []string{""},
+				}
+
+				userRepositoryMock.EXPECT().Get(ctx, "follower-uuid").Return(user, nil)
+
+				_ = user.Follow("user-uuid")
+				userRepositoryMock.EXPECT().Save(ctx, user).Return(nil)
+				userRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return(followee, nil)
+
+				followee.AddFollower("follower-uuid")
+				followeeRepositoryMock.EXPECT().Save(ctx, "user-uuid", followee.GetFollowers()).Return(errors.New("internal server error"))
+			},
+			err: errors.New("internal server error"),
+		},
+		{
+			name: "Should return error when save user followers",
+			input: input{
+				ctx:        ctx,
+				userID:     "user-uuid",
+				followerID: "follower-uuid",
+			},
+			mock: func() {
+				user := domain.User{
+					UserID:  "follower-uuid",
+					Follows: []string{},
+				}
+
+				followee := domain.User{
+					UserID:  "user-uuid",
+					Follows: []string{""},
+				}
+
+				userRepositoryMock.EXPECT().Get(ctx, "follower-uuid").Return(user, nil)
+
+				_ = user.Follow("user-uuid")
+				userRepositoryMock.EXPECT().Save(ctx, user).Return(nil)
+				userRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return(followee, nil)
+
+				followee.AddFollower("follower-uuid")
+				followeeRepositoryMock.EXPECT().Save(ctx, "user-uuid", followee.GetFollowers()).Return(nil)
+				userRepositoryMock.EXPECT().Save(ctx, followee).Return(errors.New("internal server error"))
+			},
+			err: errors.New("internal server error"),
+		},
 	}
 
 	for _, tt := range tests {
