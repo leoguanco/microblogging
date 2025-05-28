@@ -9,11 +9,11 @@ type TweetCreatedDomainEvent struct {
 	CreatedAt time.Time
 }
 
-func (e *TweetCreatedDomainEvent) GetType() string {
+func (e TweetCreatedDomainEvent) GetType() string {
 	return "tweet_created"
 }
 
-func (e *TweetCreatedDomainEvent) GetAggregateID() string {
+func (e TweetCreatedDomainEvent) GetAggregateID() string {
 	return e.TweetID
 }
 

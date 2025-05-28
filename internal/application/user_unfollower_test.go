@@ -49,10 +49,9 @@ func TestUserUnfollower_Unfollow(t *testing.T) {
 				user.Unfollow("user-uuid")
 				userRepositoryMock.EXPECT().Save(ctx, user).Return(nil)
 				eventBusMock.EXPECT().Publish(ctx, []domain.Event{
-					{
-						"AggregateID": "follower-uuid",
-						"Type":        "user_unfollowed",
-						"FolloweeID":  "user-uuid",
+					domain.UserUnfollowedDomainEvent{
+						UserID:       "follower-uuid",
+						UnFolloweeID: "user-uuid",
 					},
 				}).Return(nil)
 			},
@@ -108,10 +107,9 @@ func TestUserUnfollower_Unfollow(t *testing.T) {
 				user.Unfollow("user-uuid")
 				userRepositoryMock.EXPECT().Save(ctx, user).Return(nil)
 				eventBusMock.EXPECT().Publish(ctx, []domain.Event{
-					{
-						"AggregateID": "follower-uuid",
-						"Type":        "user_unfollowed",
-						"FolloweeID":  "user-uuid",
+					domain.UserUnfollowedDomainEvent{
+						UserID:       "follower-uuid",
+						UnFolloweeID: "user-uuid",
 					},
 				}).Return(errors.New("internal server error"))
 			},

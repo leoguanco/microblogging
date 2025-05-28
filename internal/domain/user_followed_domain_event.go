@@ -5,11 +5,11 @@ type UserFollowedDomainEvent struct {
 	FolloweeID string
 }
 
-func (e *UserFollowedDomainEvent) GetType() string {
+func (e UserFollowedDomainEvent) GetType() string {
 	return "user_followed"
 }
 
-func (e *UserFollowedDomainEvent) GetAggregateID() string {
+func (e UserFollowedDomainEvent) GetAggregateID() string {
 	return e.UserID
 }
 

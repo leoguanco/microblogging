@@ -24,7 +24,7 @@ func (p *InMemoryEventPublisher) Publish(ctx context.Context, events []domain.Ev
 
 	for _, event := range events {
 		for _, handler := range p.handlers {
-			if err := handler.Handle(event); err != nil {
+			if err := handler.Handle(ctx, event); err != nil {
 				return err
 			}
 		}

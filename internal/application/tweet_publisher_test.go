@@ -49,12 +49,11 @@ func TestTweetPublisher_Publish(t *testing.T) {
 			mock: func() {
 				tweetRepositoryMock.EXPECT().Save(ctx, *inputTweet).Return(nil)
 				eventBusMock.EXPECT().Publish(ctx, []domain.Event{
-					{
-						"AggregateID": "tweet-uuid",
-						"Type":        "tweet_created",
-						"UserID":      "user-uuid",
-						"Content":     "tweet content",
-						"CreatedAt":   createdAt,
+					domain.TweetCreatedDomainEvent{
+						TweetID:   "tweet-uuid",
+						UserID:    "user-uuid",
+						Content:   "tweet content",
+						CreatedAt: createdAt,
 					},
 				}).Return(nil)
 			},

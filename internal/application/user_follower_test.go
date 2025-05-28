@@ -48,10 +48,9 @@ func TestUserFollower_Follow(t *testing.T) {
 				_ = user.Follow("user-uuid")
 				userRepositoryMock.EXPECT().Save(ctx, user).Return(nil)
 				eventBusMock.EXPECT().Publish(ctx, []domain.Event{
-					{
-						"AggregateID": "follower-uuid",
-						"Type":        "user_followed",
-						"FolloweeID":  "user-uuid",
+					domain.UserFollowedDomainEvent{
+						UserID:     "follower-uuid",
+						FolloweeID: "user-uuid",
 					},
 				}).Return(nil)
 			},

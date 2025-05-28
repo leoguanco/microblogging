@@ -5,11 +5,11 @@ type UserUnfollowedDomainEvent struct {
 	UnFolloweeID string
 }
 
-func (e *UserUnfollowedDomainEvent) GetType() string {
+func (e UserUnfollowedDomainEvent) GetType() string {
 	return "user_unfollowed"
 }
 
-func (e *UserUnfollowedDomainEvent) GetAggregateID() string {
+func (e UserUnfollowedDomainEvent) GetAggregateID() string {
 	return e.UserID
 }
 
