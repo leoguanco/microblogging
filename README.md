@@ -13,6 +13,10 @@ This project is a backend implementation for a simplified microblogging platform
 - [API Endpoints](#api-endpoints)
 - [Technologies Used](#technologies-used)
 - [Project Structure](#project-structure)
+- [Infrastructure Implementation](#infrastructure-implementation)
+    - [Current Development Implementation](#current-development-implementation)
+    - [Production-Ready Implementation](#production-ready-implementation)
+    - [Infrastructure Comparison Diagram](#infrastructure-comparison-diagram)
 - [Setup and Running](#setup-and-running)
     - [Prerequisites](#prerequisites)
     - [Running Locally (In-Memory Version)](#running-locally-in-memory-version)
@@ -167,6 +171,63 @@ This project follows a clean and modular structure based on hexagonal architectu
 * `Makefile`: Common commands for building, testing, and running the application
 
 This structure separates business logic from technical implementations, making the codebase more maintainable and testable.
+
+## Infrastructure Implementation
+
+### Current Development Implementation
+
+This project currently uses in-memory implementations for all infrastructure components, making it easy to run locally without external dependencies:
+
+* **In-Memory Event Bus**: Events (like tweet creation and user following) are published and handled within the application's memory
+* **In-Memory Repositories**: All data (users, tweets, followers, timelines) is stored in memory and lost when the application restarts
+* **Timeline Update Mechanism**: When events occur (new tweet, new follow), a handler updates the relevant timelines in memory
+
+This approach is perfect for development and testing but not suitable for production use.
+
+### Production-Ready Implementation
+
+For a production environment, the following infrastructure would replace the in-memory implementations:
+
+* **Event Bus**: RabbitMQ or Amazon SQS would handle event publishing and subscription
+* **Databases**:
+  * **MySQL**: For persistent storage of users, tweets, and follower relationships
+  * **Redis**: For caching user timelines, providing fast read access
+* **Timeline Updates**: Could be implemented either through:
+  * Event-driven approach (current implementation): Events trigger handlers that update the Redis cache
+  * Database triggers: MySQL triggers could update the Redis cache when database changes occur
+
+### Infrastructure Comparison Diagram
+
+```mermaid
+flowchart TB
+    subgraph "Development Environment"
+        IME[In-Memory Event Bus]
+        IMR[In-Memory Repositories]
+        IMT[In-Memory Timeline]
+
+        IME --> IMT
+        IMR --> IMT
+    end
+
+    subgraph "Production Environment"
+        subgraph "Event Bus"
+            RMQ[RabbitMQ/SQS]
+        end
+
+        subgraph "Persistent Storage"
+            SQL[MySQL Database]
+            RC[Redis Cache]
+        end
+
+        RMQ --> |Timeline Update Handler| RC
+        SQL --> |Store/Retrieve Data| APP
+        RC --> |Fast Timeline Reads| APP
+        APP --> |Publish Events| RMQ
+        APP --> |Write Data| SQL
+    end
+
+    APP[Application]
+```
 
 ## Setup and Running
 
