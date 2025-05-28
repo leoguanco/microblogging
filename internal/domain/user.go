@@ -69,3 +69,13 @@ func (u *User) GetFollowers() []string {
 func (u *User) AddFollower(followerID string) {
 	u.Followers = append(u.Followers, followerID)
 }
+
+func (u *User) RemoveFollower(followerID string) {
+	var followers []string
+	for _, fID := range u.Followers {
+		if fID != followerID {
+			followers = append(followers, fID)
+		}
+	}
+	u.Followers = followers
+}

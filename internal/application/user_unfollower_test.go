@@ -22,8 +22,9 @@ func TestUserUnfollower_Unfollow(t *testing.T) {
 	}
 
 	userRepositoryMock := mocks.NewMockUserRepository(ctrl)
+	followeeRepositoryMock := mocks.NewMockFolloweeRepository(ctrl)
 	eventBusMock := mocks.NewMockEventBus(ctrl)
-	u := NewUserUnfollower(userRepositoryMock, eventBusMock)
+	u := NewUserUnfollower(userRepositoryMock, followeeRepositoryMock, eventBusMock)
 
 	tests := []struct {
 		name  string
@@ -43,11 +44,21 @@ func TestUserUnfollower_Unfollow(t *testing.T) {
 					UserID:  "follower-uuid",
 					Follows: []string{"user-uuid"},
 				}
+				followee := domain.User{
+					UserID:  "user-uuid",
+					Follows: []string{},
+				}
 
 				userRepositoryMock.EXPECT().Get(ctx, "follower-uuid").Return(user, nil)
 
-				user.Unfollow("user-uuid")
+				_ = user.Unfollow("user-uuid")
 				userRepositoryMock.EXPECT().Save(ctx, user).Return(nil)
+
+				userRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return(followee, nil)
+				followee.RemoveFollower("follower-uuid")
+				followeeRepositoryMock.EXPECT().Save(ctx, "user-uuid", followee.GetFollowers()).Return(nil)
+				userRepositoryMock.EXPECT().Save(ctx, followee).Return(nil)
+
 				eventBusMock.EXPECT().Publish(ctx, []domain.Event{
 					domain.UserUnfollowedDomainEvent{
 						UserID:       "follower-uuid",
@@ -101,11 +112,20 @@ func TestUserUnfollower_Unfollow(t *testing.T) {
 					UserID:  "follower-uuid",
 					Follows: []string{"user-uuid"},
 				}
+				followee := domain.User{
+					UserID:  "user-uuid",
+					Follows: []string{},
+				}
 
 				userRepositoryMock.EXPECT().Get(ctx, "follower-uuid").Return(user, nil)
-
-				user.Unfollow("user-uuid")
+				_ = user.Unfollow("user-uuid")
 				userRepositoryMock.EXPECT().Save(ctx, user).Return(nil)
+
+				userRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return(followee, nil)
+				followee.RemoveFollower("follower-uuid")
+				followeeRepositoryMock.EXPECT().Save(ctx, "user-uuid", followee.GetFollowers()).Return(nil)
+				userRepositoryMock.EXPECT().Save(ctx, followee).Return(nil)
+
 				eventBusMock.EXPECT().Publish(ctx, []domain.Event{
 					domain.UserUnfollowedDomainEvent{
 						UserID:       "follower-uuid",
@@ -131,6 +151,84 @@ func TestUserUnfollower_Unfollow(t *testing.T) {
 				userRepositoryMock.EXPECT().Get(ctx, "follower-uuid").Return(user, nil)
 			},
 			err: errors.New("cannot unfollow yourself"),
+		},
+		{
+			name: "Should return an error when get a followee",
+			input: input{
+				ctx:        ctx,
+				followeeID: "user-uuid",
+				followerID: "follower-uuid",
+			},
+			mock: func() {
+				user := domain.User{
+					UserID:  "follower-uuid",
+					Follows: []string{"user-uuid"},
+				}
+				userRepositoryMock.EXPECT().Get(ctx, "follower-uuid").Return(user, nil)
+
+				_ = user.Unfollow("user-uuid")
+				userRepositoryMock.EXPECT().Save(ctx, user).Return(nil)
+
+				userRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return(domain.User{}, errors.New("internal server error"))
+			},
+			err: errors.New("internal server error"),
+		},
+		{
+			name: "Should return an error when save a followee",
+			input: input{
+				ctx:        ctx,
+				followeeID: "user-uuid",
+				followerID: "follower-uuid",
+			},
+			mock: func() {
+				user := domain.User{
+					UserID:  "follower-uuid",
+					Follows: []string{"user-uuid"},
+				}
+				followee := domain.User{
+					UserID:  "user-uuid",
+					Follows: []string{},
+				}
+
+				userRepositoryMock.EXPECT().Get(ctx, "follower-uuid").Return(user, nil)
+
+				_ = user.Unfollow("user-uuid")
+				userRepositoryMock.EXPECT().Save(ctx, user).Return(nil)
+
+				userRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return(followee, nil)
+				followee.RemoveFollower("follower-uuid")
+				followeeRepositoryMock.EXPECT().Save(ctx, "user-uuid", followee.GetFollowers()).Return(errors.New("internal server error"))
+			},
+			err: errors.New("internal server error"),
+		},
+		{
+			name: "Should return error when save user followers",
+			input: input{
+				ctx:        ctx,
+				followeeID: "user-uuid",
+				followerID: "follower-uuid",
+			},
+			mock: func() {
+				user := domain.User{
+					UserID:  "follower-uuid",
+					Follows: []string{"user-uuid"},
+				}
+				followee := domain.User{
+					UserID:  "user-uuid",
+					Follows: []string{},
+				}
+
+				userRepositoryMock.EXPECT().Get(ctx, "follower-uuid").Return(user, nil)
+
+				_ = user.Unfollow("user-uuid")
+				userRepositoryMock.EXPECT().Save(ctx, user).Return(nil)
+
+				userRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return(followee, nil)
+				followee.RemoveFollower("follower-uuid")
+				followeeRepositoryMock.EXPECT().Save(ctx, "user-uuid", followee.GetFollowers()).Return(nil)
+				userRepositoryMock.EXPECT().Save(ctx, followee).Return(errors.New("internal server error"))
+			},
+			err: errors.New("internal server error"),
 		},
 	}
 

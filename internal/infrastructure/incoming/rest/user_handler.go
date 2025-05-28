@@ -27,7 +27,7 @@ type FollowRequest struct {
 }
 
 type UnfollowRequest struct {
-	FolloweeID string `json:"followeeId"`
+	UnFolloweeID string `json:"unFolloweeId"`
 }
 
 type FollowResponse struct {
@@ -101,13 +101,13 @@ func (h *UserHandler) UnfollowUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if followerID == req.FolloweeID {
+	if followerID == req.UnFolloweeID {
 		h.logger.Error("Cannot unfollow yourself")
 		http.Error(w, "Cannot unfollow yourself", http.StatusBadRequest)
 		return
 	}
 
-	err := h.userUnfollower.Unfollow(r.Context(), followerID, req.FolloweeID)
+	err := h.userUnfollower.Unfollow(r.Context(), req.UnFolloweeID, followerID)
 	if err != nil {
 		h.logger.WithError(err).Error("Failed to unfollow user")
 		http.Error(w, "Failed to unfollow user", http.StatusInternalServerError)

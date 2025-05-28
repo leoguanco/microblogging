@@ -29,7 +29,7 @@ func BuildDependencies() AppDependencies {
 
 	tweetCreator := application.NewTweetCreator(tweetRepo, eventPublisher)
 	userFollower := application.NewUserFollower(userRepo, followeeRepo, eventPublisher)
-	userUnfollower := application.NewUserUnfollower(userRepo, eventPublisher)
+	userUnfollower := application.NewUserUnfollower(userRepo, followeeRepo, eventPublisher)
 	timelineGetter := application.NewTimelineGetter(timelineRepo)
 	userAdder := application.NewUserAdder(userRepo)
 

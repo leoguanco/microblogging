@@ -7,12 +7,17 @@ import (
 )
 
 type UserUnfollower struct {
-	userRepository ports.UserRepository
-	eventBus       ports.EventBus
+	userRepository     ports.UserRepository
+	followeeRepository ports.FolloweeRepository
+	eventBus           ports.EventBus
 }
 
-func NewUserUnfollower(userRepository ports.UserRepository, eventBus ports.EventBus) *UserUnfollower {
-	return &UserUnfollower{userRepository: userRepository, eventBus: eventBus}
+func NewUserUnfollower(
+	userRepository ports.UserRepository,
+	followeeRepository ports.FolloweeRepository,
+	eventBus ports.EventBus,
+) *UserUnfollower {
+	return &UserUnfollower{userRepository: userRepository, followeeRepository: followeeRepository, eventBus: eventBus}
 }
 
 func (u UserUnfollower) Unfollow(ctx context.Context, unFolloweeID, followerID string) error {
@@ -30,6 +35,23 @@ func (u UserUnfollower) Unfollow(ctx context.Context, unFolloweeID, followerID s
 	}
 
 	err = u.userRepository.Save(ctx, user)
+	if err != nil {
+		return err
+	}
+
+	followee, err := u.userRepository.Get(ctx, unFolloweeID)
+	if err != nil {
+		return err
+	}
+
+	followee.RemoveFollower(followerID)
+
+	err = u.followeeRepository.Save(ctx, unFolloweeID, followee.GetFollowers())
+	if err != nil {
+		return err
+	}
+
+	err = u.userRepository.Save(ctx, followee)
 	if err != nil {
 		return err
 	}
