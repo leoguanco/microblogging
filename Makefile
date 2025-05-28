@@ -12,7 +12,7 @@ test:
 clean:
 	rm -f microblog
 
-docker-build:
+docker-build: build
 	docker build -t microblog:latest .
 
 docker-run: docker-build
@@ -22,7 +22,6 @@ docker-compose-up:
 	docker compose up -d
 	@echo "Services are starting up..."
 	@echo "Grafana UI will be available at http://localhost:3000 (admin/admin)"
-	@echo "Run 'make tracing-dashboard' to get the tracing dashboard URL"
 
 docker-compose-down:
 	docker compose down

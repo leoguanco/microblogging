@@ -9,7 +9,7 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o microblog ./cmd/server
+RUN CGO_ENABLED=0 GOOS=linux go build -o microblog ./cmd/api
 
 FROM alpine:latest
 

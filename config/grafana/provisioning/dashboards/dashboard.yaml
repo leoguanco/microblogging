@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: 'Microblog Dashboards'
+    orgId: 1
+    folder: 'Microblog'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards

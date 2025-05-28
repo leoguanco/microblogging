@@ -16,6 +16,11 @@ This project is a backend implementation for a simplified microblogging platform
 - [Setup and Running](#setup-and-running)
     - [Prerequisites](#prerequisites)
     - [Running Locally (In-Memory Version)](#running-locally-in-memory-version)
+    - [Running with Docker Compose](#running-with-docker-compose)
+- [Logging and Monitoring](#logging-and-monitoring)
+    - [Components](#components)
+    - [Features](#features)
+    - [Accessing Logs](#accessing-logs)
 - [Testing](#testing)
 
 ## Features
@@ -145,6 +150,7 @@ flowchart TD
 
 * **Language**: Golang
 * **Containerization**: Docker
+* **Logging & Monitoring**: Grafana, Loki, Promtail
 * **(Development)**: In-memory data stores.
 
 ## Project Structure
@@ -175,3 +181,50 @@ This structure separates business logic from technical implementations, making t
 ```bash
 cd microblogging
 make run
+```
+
+### Running with Docker Compose
+
+To run the application with Docker Compose, which includes Grafana and Loki for log monitoring:
+
+```bash
+make docker-compose-up
+```
+
+This will start the following services:
+- Microblog application (http://localhost:8080)
+- Grafana (http://localhost:3000) - Use admin/admin for login
+- Loki (http://localhost:3100)
+- Promtail (for log collection)
+
+To stop all services:
+
+```bash
+make docker-compose-down
+```
+
+## Logging and Monitoring
+
+This project includes a comprehensive logging and monitoring setup using Grafana and Loki:
+
+### Components
+
+- **Loki**: A horizontally-scalable, highly-available log aggregation system
+- **Promtail**: An agent that ships the contents of local logs to Loki
+- **Grafana**: A visualization and analytics platform for monitoring and observability
+
+### Features
+
+- Centralized log collection from all containers
+- Pre-configured Grafana dashboards for log visualization
+- Real-time log monitoring
+- Log filtering and searching capabilities
+- Log level distribution visualization
+- Error count monitoring
+
+### Accessing Logs
+
+1. Start the services with `make docker-compose-up`
+2. Open Grafana at http://localhost:3000 (login with admin/admin)
+3. Navigate to the "Microblog Logs" dashboard
+4. View and search logs in real-time
