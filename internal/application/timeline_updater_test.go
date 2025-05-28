@@ -115,6 +115,23 @@ func TestTimelineUpdater_Update(t *testing.T) {
 			},
 			err: errors.New("internal server error"),
 		},
+		{
+			name: "Should return error when get a followee",
+			input: input{
+				ctx:    ctx,
+				userID: "user-uuid",
+				tweet: domain.Tweet{
+					TweetID:   "tweet-uuid",
+					UserID:    "user-uuid",
+					Content:   "Lorem ipsum",
+					CreatedAt: createdAt,
+				},
+			},
+			mock: func() {
+				followeeRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return([]string{}, errors.New("internal server error"))
+			},
+			err: errors.New("internal server error"),
+		},
 	}
 
 	for _, tt := range tests {
