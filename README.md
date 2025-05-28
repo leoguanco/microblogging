@@ -12,7 +12,6 @@ This project is a backend implementation for a simplified microblogging platform
 - [Setup and Running](#setup-and-running)
     - [Prerequisites](#prerequisites)
     - [Running Locally (In-Memory Version)](#running-locally-in-memory-version)
-    - [Running with Docker (Production-like with Cassandra/Redis)](#running-with-docker-production-like-with-cassandraredis)
 - [Testing](#testing)
 
 ## Features
@@ -23,8 +22,9 @@ This project is a backend implementation for a simplified microblogging platform
 
 ## Architecture
 
-The system uses a **Hexagonal Architecture (Ports and Adapters)**  to ensure a clean separation of concerns.
-Refer to the [High-Level Architecture Document](PATH_TO_ARCHITECTURE_DOC_OR_WIKI_PAGE) for more details.
+The system uses a **Hexagonal Architecture (Ports and Adapters)** to ensure a clean separation of concerns.
+
+### High-Level Architecture Overview
 
 ## API Endpoints
 
@@ -42,27 +42,34 @@ Refer to the [High-Level Architecture Document](PATH_TO_ARCHITECTURE_DOC_OR_WIKI
 ## Technologies Used
 
 * **Language**: Golang
-* **Databases (Production Target)**: Apache Cassandra, Redis
 * **Containerization**: Docker
-* **Orchestration (Target)**: Kubernetes
 * **(Development)**: In-memory data stores.
 
 ## Project Structure
 
-(Briefly describe the Golang project structure as outlined above)
+This project follows a clean and modular structure based on hexagonal architecture principles:
+
+* `/cmd/api`: Entry point for the application, contains main.go and server initialization
+* `/internal`: Core application code isn't meant to be imported by external projects
+  * `/domain`: Contains core business logic, entities, and domain interfaces (ports)
+  * `/application`: Application services that orchestrate domain objects to fulfill use cases
+  * `/infrastructure`: Implementations of the domain interfaces (adapters) including repositories and external services
+* `/pkg`: Reusable packages that could be imported by other projects
+* `Dockerfile`: Container definition for production deployment
+* `Makefile`: Common commands for building, testing, and running the application
+
+This structure separates business logic from technical implementations, making the codebase more maintainable and testable.
 
 ## Setup and Running
 
 ### Prerequisites
 
-* Go (version X.Y.Z)
-* Docker (if running with Docker)
-* Docker Compose (if using it for multi-container setup)
+* Go (version 1.23.9)
+* Docker
+* Docker Compose
 
 ### Running Locally (In-Memory Version)
 
 ```bash
-git clone <repository_url>
-cd ualatter
-# (Instructions for setting up any environment variables if needed)
-go run cmd/api/main.go
+cd microblogging
+make run
