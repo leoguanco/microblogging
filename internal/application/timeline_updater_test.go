@@ -23,7 +23,8 @@ func TestTimelineUpdater_Update(t *testing.T) {
 	}
 
 	timelineRepositoryMock := mocks.NewMockTimelineRepository(ctrl)
-	u := NewTimelineUpdater(timelineRepositoryMock)
+	followeeRepositoryMock := mocks.NewMockFolloweeRepository(ctrl)
+	u := NewTimelineUpdater(timelineRepositoryMock, followeeRepositoryMock)
 
 	createdAt := time.Now()
 	tests := []struct {
@@ -52,7 +53,8 @@ func TestTimelineUpdater_Update(t *testing.T) {
 					Tweets: []domain.Tweet{},
 				}
 
-				timelineRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return(timeline, nil)
+				followeeRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return([]string{"followee-uuid"}, nil)
+				timelineRepositoryMock.EXPECT().Get(ctx, "followee-uuid").Return(timeline, nil)
 				timeline.AddTweet(domain.Tweet{
 					TweetID:   "tweet-uuid",
 					UserID:    "user-uuid",
@@ -83,7 +85,8 @@ func TestTimelineUpdater_Update(t *testing.T) {
 					Tweets: []domain.Tweet{},
 				}
 
-				timelineRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return(timeline, nil)
+				followeeRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return([]string{"followee-uuid"}, nil)
+				timelineRepositoryMock.EXPECT().Get(ctx, "followee-uuid").Return(timeline, nil)
 				timeline.AddTweet(domain.Tweet{
 					TweetID:   "tweet-uuid",
 					UserID:    "user-uuid",
@@ -107,7 +110,8 @@ func TestTimelineUpdater_Update(t *testing.T) {
 				},
 			},
 			mock: func() {
-				timelineRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return(domain.Timeline{}, errors.New("internal server error"))
+				followeeRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return([]string{"followee-uuid"}, nil)
+				timelineRepositoryMock.EXPECT().Get(ctx, "followee-uuid").Return(domain.Timeline{}, errors.New("internal server error"))
 			},
 			err: errors.New("internal server error"),
 		},

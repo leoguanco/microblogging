@@ -6,6 +6,7 @@ type User struct {
 	UserID       string
 	Follows      []string
 	domainEvents []Event
+	Followers    []string
 }
 
 func (u *User) PullDomainEvents() []Event {
@@ -59,4 +60,12 @@ func (u *User) Unfollow(unFolloweeID string) error {
 	u.Record(NewUserUnfollowedDomainEvent(u.UserID, unFolloweeID))
 
 	return nil
+}
+
+func (u *User) GetFollowers() []string {
+	return u.Followers
+}
+
+func (u *User) AddFollower(followerID string) {
+	u.Followers = append(u.Followers, followerID)
 }

@@ -26,6 +26,7 @@ func main() {
 		appDeps.UserFollower,
 		appDeps.UserUnfollower,
 		appDeps.TimelineGetter,
+		appDeps.UserAdder,
 	)
 
 	router := mux.NewRouter()
@@ -36,6 +37,7 @@ func main() {
 	router.HandleFunc("/v1/users/follow", handlers.UserHandler.FollowUser).Methods("POST")
 	router.HandleFunc("/v1/users/unfollow", handlers.UserHandler.UnfollowUser).Methods("POST")
 	router.HandleFunc("/v1/users/timeline", handlers.TimelineHandler.GetTimeline).Methods("GET")
+	router.HandleFunc("/v1/users", handlers.UserHandler.AddUser).Methods("POST")
 
 	handlerWithMiddleware := rest.Middleware(router, logger)
 

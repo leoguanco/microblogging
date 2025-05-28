@@ -17,12 +17,13 @@ func NewHandlers(
 	userFollower usecases.UserFollower,
 	userUnfollower usecases.UserUnfollower,
 	timelineGetter usecases.TimelineGetter,
+	userAdder usecases.UserAdder,
 ) *Handlers {
 	logger := logging.GetLogger().WithField("component", "APIHandlers")
 
 	return &Handlers{
 		TweetHandler:    NewTweetHandler(tweetCreator),
-		UserHandler:     NewUserHandler(userFollower, userUnfollower),
+		UserHandler:     NewUserHandler(userFollower, userUnfollower, userAdder),
 		TimelineHandler: NewTimelineHandler(timelineGetter),
 		Logger:          logger,
 	}

@@ -22,8 +22,9 @@ func TestUserFollower_Follow(t *testing.T) {
 	}
 
 	userRepositoryMock := mocks.NewMockUserRepository(ctrl)
+	followeeRepositoryMock := mocks.NewMockFolloweeRepository(ctrl)
 	eventBusMock := mocks.NewMockEventBus(ctrl)
-	f := NewUserFollower(userRepositoryMock, eventBusMock)
+	f := NewUserFollower(userRepositoryMock, followeeRepositoryMock, eventBusMock)
 
 	tests := []struct {
 		name  string
@@ -43,10 +44,22 @@ func TestUserFollower_Follow(t *testing.T) {
 					UserID:  "follower-uuid",
 					Follows: []string{},
 				}
+
+				followee := domain.User{
+					UserID:  "user-uuid",
+					Follows: []string{""},
+				}
+
 				userRepositoryMock.EXPECT().Get(ctx, "follower-uuid").Return(user, nil)
 
 				_ = user.Follow("user-uuid")
 				userRepositoryMock.EXPECT().Save(ctx, user).Return(nil)
+				userRepositoryMock.EXPECT().Get(ctx, "user-uuid").Return(followee, nil)
+
+				followee.AddFollower("follower-uuid")
+				followeeRepositoryMock.EXPECT().Save(ctx, "user-uuid", followee.GetFollowers()).Return(nil)
+				userRepositoryMock.EXPECT().Save(ctx, followee).Return(nil)
+
 				eventBusMock.EXPECT().Publish(ctx, []domain.Event{
 					domain.UserFollowedDomainEvent{
 						UserID:     "follower-uuid",
