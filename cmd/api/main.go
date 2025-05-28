@@ -33,13 +33,15 @@ func main() {
 	router.HandleFunc("/healthz", ping).Methods("GET")
 
 	router.HandleFunc("/v1/tweets", handlers.TweetHandler.PostTweet).Methods("POST")
-	router.HandleFunc("/v1/users/{userId}/follow", handlers.UserHandler.FollowUser).Methods("POST")
-	router.HandleFunc("/v1/users/{userId}/unfollow", handlers.UserHandler.UnfollowUser).Methods("POST")
-	router.HandleFunc("/v1/users/{userId}/timeline", handlers.TimelineHandler.GetTimeline).Methods("GET")
+	router.HandleFunc("/v1/users/follow", handlers.UserHandler.FollowUser).Methods("POST")
+	router.HandleFunc("/v1/users/unfollow", handlers.UserHandler.UnfollowUser).Methods("POST")
+	router.HandleFunc("/v1/users/timeline", handlers.TimelineHandler.GetTimeline).Methods("GET")
+
+	handlerWithMiddleware := rest.Middleware(router, logger)
 
 	server := &http.Server{
 		Addr:         ":8080",
-		Handler:      router,
+		Handler:      handlerWithMiddleware,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
 		IdleTimeout:  60 * time.Second,
