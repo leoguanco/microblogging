@@ -6,6 +6,10 @@ This project is a backend implementation for a simplified microblogging platform
 
 - [Features](#features)
 - [Architecture](#architecture)
+- [Flow Diagrams](#flow-diagrams)
+    - [Hexagonal Architecture](#hexagonal-architecture)
+    - [User Interaction Flow](#user-interaction-flow)
+    - [Timeline Generation](#timeline-generation)
 - [API Endpoints](#api-endpoints)
 - [Technologies Used](#technologies-used)
 - [Project Structure](#project-structure)
@@ -26,18 +30,116 @@ The system uses a **Hexagonal Architecture (Ports and Adapters)** to ensure a cl
 
 ### High-Level Architecture Overview
 
+This project implements a Hexagonal Architecture (also known as Ports and Adapters) pattern, which separates the core business logic from external concerns. The architecture consists of three main layers:
+
+1. **Domain Layer**: Contains the core business entities, logic, and interfaces (ports)
+2. **Application Layer**: Orchestrates the domain objects to fulfill use cases
+3. **Infrastructure Layer**: Implements the interfaces defined in the domain layer (adapters)
+
+## Flow Diagrams
+
+### Hexagonal Architecture
+
+```mermaid
+flowchart TB
+    subgraph External World
+        REST[REST API]
+        DB[Database]
+    end
+
+    subgraph Adapters/Infrastructure
+        REST_Adapter[REST Handlers]
+        Repo_Adapter[Repository Implementations]
+    end
+
+    subgraph Application
+        Use_Cases[Use Cases]
+    end
+
+    subgraph Domain
+        Entities[Domain Entities]
+        Ports[Ports/Interfaces]
+    end
+
+    REST --> REST_Adapter
+    REST_Adapter --> Use_Cases
+    Use_Cases --> Ports
+    Ports --> Repo_Adapter
+    Repo_Adapter --> DB
+    Use_Cases --> Entities
+    Entities --> Ports
+```
+
+### User Interaction Flow
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant REST as REST API
+    participant App as Application Layer
+    participant Domain as Domain Layer
+    participant Repo as Repository
+    participant Events as Event Bus
+
+    %% Post Tweet Flow
+    Client->>REST: POST /v1/tweets
+    REST->>App: Create Tweet
+    App->>Domain: Create Tweet Entity
+    Domain-->>App: Return Tweet
+    App->>Repo: Save Tweet
+    App->>Events: Publish TweetCreated Event
+    REST-->>Client: Response
+
+    %% Follow User Flow
+    Client->>REST: POST /v1/users/follow
+    REST->>App: Follow User
+    App->>Repo: Update Followee Relationship
+    App->>Events: Publish UserFollowed Event
+    REST-->>Client: Response
+
+    %% Get Timeline Flow
+    Client->>REST: GET /v1/users/timeline
+    REST->>App: Get Timeline
+    App->>Repo: Fetch Timeline
+    Repo-->>App: Return Timeline
+    App-->>REST: Return Timeline
+    REST-->>Client: Timeline Response
+```
+
+### Timeline Generation
+
+```mermaid
+flowchart TD
+    A[Tweet Created] --> B{Event Bus}
+    B --> C[Timeline Updater Handler]
+    C --> D[Get Followers]
+    D --> E[For Each Follower]
+    E --> F[Get Follower's Timeline]
+    F --> G[Add Tweet to Timeline]
+    G --> H[Update Timeline Repository]
+
+    I[User Followed] --> B
+    B --> J[Timeline Updater Handler]
+    J --> K[Get Followee's Tweets]
+    K --> L[Add Tweets to Follower's Timeline]
+    L --> M[Update Timeline Repository]
+```
+
 ## API Endpoints
 
 * `POST /v1/tweets`
     * Header: `X-User-ID: <author_user_id>`
-    * Body: `{"content": "string"}`
-* `POST /v1/users/{user_to_follow_id}/follow`
+    * Body: `{"tweetId": "string", "content": "string"}`
+* `POST /v1/users/follow`
     * Header: `X-User-ID: <follower_user_id>`
-* `POST /v1/users/{user_to_unfollow_id}/unfollow`
+    * Body: `{"followeeId": "string"}`
+* `POST /v1/users/unfollow`
     * Header: `X-User-ID: <follower_user_id>`
-* `GET /v1/users/{user_id}/timeline`
-
-(More details in the architecture document)
+    * Body: `{"unFolloweeId": "string"}`
+* `GET /v1/users/timeline`
+    * Header: `X-User-ID: <user_id>`
+* `POST /v1/users`
+    * Body: `{"userId": "string"}`
 
 ## Technologies Used
 
