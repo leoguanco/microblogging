@@ -20,7 +20,7 @@ This project is a backend implementation for a simplified microblogging platform
 - [Logging and Monitoring](#logging-and-monitoring)
     - [Components](#components)
     - [Features](#features)
-    - [Accessing Logs](#accessing-logs)
+    - [Accessing Logs and Metrics](#accessing-logs-and-metrics)
 - [Testing](#testing)
 
 ## Features
@@ -150,7 +150,7 @@ flowchart TD
 
 * **Language**: Golang
 * **Containerization**: Docker
-* **Logging & Monitoring**: Grafana, Loki, Promtail
+* **Logging & Monitoring**: Grafana, Loki, Promtail, Prometheus, Node-exporter
 * **(Development)**: In-memory data stores.
 
 ## Project Structure
@@ -195,6 +195,8 @@ This will start the following services:
 - Grafana (http://localhost:3000) - Use admin/admin for login
 - Loki
 - Promtail (for log collection)
+- Prometheus (http://localhost:9090)
+- Node-exporter (for system metrics collection)
 
 To stop all services:
 
@@ -210,20 +212,26 @@ This project includes a comprehensive logging and monitoring setup using Grafana
 
 - **Loki**: A horizontally-scalable, highly-available log aggregation system
 - **Promtail**: An agent that ships the contents of local logs to Loki
+- **Prometheus**: A monitoring system and time series database for metrics collection
+- **Node-exporter**: An exporter for hardware and OS metrics for Prometheus
 - **Grafana**: A visualization and analytics platform for monitoring and observability
 
 ### Features
 
 - Centralized log collection from all containers
-- Pre-configured Grafana dashboards for log visualization
-- Real-time log monitoring
+- System metrics collection (CPU, memory, disk, network)
+- Pre-configured Grafana dashboards for log and metrics visualization
+- Real-time log and metrics monitoring
 - Log filtering and searching capabilities
 - Log level distribution visualization
 - Error count monitoring
+- Resource usage tracking and visualization
 
-### Accessing Logs
+### Accessing Logs and Metrics
 
 1. Start the services with `make docker-compose-up`
 2. Open Grafana at http://localhost:3000 (login with admin/admin)
-3. Navigate to the "Microblog Logs" dashboard
-4. View and search logs in real-time
+3. Navigate to the "Microblog Logs" dashboard to view and search logs in real-time
+4. Navigate to the "System Metrics" dashboard to view CPU, memory, disk, and network metrics
+5. Navigate to the "Application Metrics" dashboard to view HTTP request rates and durations
+6. You can also access Prometheus directly at http://localhost:9090 to query metrics

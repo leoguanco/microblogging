@@ -1,12 +1,58 @@
 package rest
 
 import (
+	"github.com/prometheus/client_golang/prometheus"
 	"microblogging/pkg/logging"
 	"net/http"
+	"strconv"
 	"time"
 )
 
+var (
+	httpRequestsTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "http_requests_total",
+			Help: "Total number of HTTP requests",
+		},
+		[]string{"method", "endpoint", "status"},
+	)
+
+	httpRequestDuration = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "http_request_duration_seconds",
+			Help:    "Duration of HTTP requests in seconds",
+			Buckets: prometheus.DefBuckets,
+		},
+		[]string{"method", "endpoint"},
+	)
+)
+
 func Middleware(next http.Handler, logger *logging.Logger) http.Handler {
+	metricsMiddleware := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			start := time.Now()
+
+			wrapped := newResponseWriterWrapper(w)
+
+			next.ServeHTTP(wrapped, r)
+
+			duration := time.Since(start)
+
+			if r.URL.Path != "/metrics" {
+				httpRequestsTotal.WithLabelValues(
+					r.Method,
+					r.URL.Path,
+					strconv.Itoa(wrapped.statusCode),
+				).Inc()
+
+				httpRequestDuration.WithLabelValues(
+					r.Method,
+					r.URL.Path,
+				).Observe(duration.Seconds())
+			}
+		})
+	}
+
 	loggingMiddleware := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
@@ -58,6 +104,7 @@ func Middleware(next http.Handler, logger *logging.Logger) http.Handler {
 	handler = loggingMiddleware(handler)
 	handler = recoveryMiddleware(handler)
 	handler = corsMiddleware(handler)
+	handler = metricsMiddleware(handler)
 
 	return handler
 }

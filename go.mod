@@ -6,6 +6,7 @@ toolchain go1.23.9
 
 require (
 	github.com/gorilla/mux v1.8.1
+	github.com/prometheus/client_golang v1.19.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/mock v0.5.2

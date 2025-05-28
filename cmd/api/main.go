@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"microblogging/internal/infrastructure"
 	"microblogging/internal/infrastructure/incoming/rest"
 	"microblogging/pkg/logging"
@@ -31,6 +32,7 @@ func main() {
 
 	router := mux.NewRouter()
 
+	router.Handle("/metrics", promhttp.Handler())
 	router.HandleFunc("/healthz", ping).Methods("GET")
 
 	router.HandleFunc("/v1/tweets", handlers.TweetHandler.PostTweet).Methods("POST")
