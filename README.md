@@ -216,17 +216,6 @@ This project includes a comprehensive logging and monitoring setup using Grafana
 - **Node-exporter**: An exporter for hardware and OS metrics for Prometheus
 - **Grafana**: A visualization and analytics platform for monitoring and observability
 
-### Features
-
-- Centralized log collection from all containers
-- System metrics collection (CPU, memory, disk, network)
-- Pre-configured Grafana dashboards for log and metrics visualization
-- Real-time log and metrics monitoring
-- Log filtering and searching capabilities
-- Log level distribution visualization
-- Error count monitoring
-- Resource usage tracking and visualization
-
 ### Accessing Logs and Metrics
 
 1. Start the services with `make docker-compose-up`
