@@ -1,6 +1,8 @@
 module microblogging
 
-go 1.23.9
+go 1.23
+
+toolchain go1.23.9
 
 require (
 	github.com/gorilla/mux v1.8.1

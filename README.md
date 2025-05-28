@@ -179,7 +179,6 @@ This structure separates business logic from technical implementations, making t
 ### Running Locally (In-Memory Version)
 
 ```bash
-cd microblogging
 make run
 ```
 
@@ -194,7 +193,7 @@ make docker-compose-up
 This will start the following services:
 - Microblog application (http://localhost:8080)
 - Grafana (http://localhost:3000) - Use admin/admin for login
-- Loki (http://localhost:3100)
+- Loki
 - Promtail (for log collection)
 
 To stop all services:
