@@ -21,6 +21,10 @@ This project is a backend implementation for a simplified microblogging platform
     - [Prerequisites](#prerequisites)
     - [Running Locally (In-Memory Version)](#running-locally-in-memory-version)
     - [Running with Docker Compose](#running-with-docker-compose)
+- [Using the Postman Collection](#using-the-postman-collection)
+    - [Importing the Collection](#importing-the-collection)
+    - [Available Endpoints](#available-endpoints)
+    - [Testing the API Flow](#testing-the-api-flow)
 - [Logging and Monitoring](#logging-and-monitoring)
     - [Components](#components)
     - [Features](#features)
@@ -264,6 +268,29 @@ To stop all services:
 ```bash
 make docker-compose-down
 ```
+
+## Using the Postman Collection
+
+This project includes a Postman collection that allows you to easily test all API endpoints. The collection contains pre-configured requests for all the microblogging functionality.
+
+### Importing the Collection
+
+1. Download and install [Postman](https://www.postman.com/downloads/) if you haven't already
+2. In Postman, click on "Import" in the top left corner
+3. Select "File" and navigate to the `postman/Microblogging.postman_collection.json` file in this repository
+4. Click "Import" to add the collection to your Postman workspace
+
+### Available Endpoints
+
+The collection includes the following requests:
+
+- **Healthz**: Check if the API is running
+- **Add user 1**: Create a user with ID "1"
+- **Add user 2**: Create a user with ID "2"
+- **Follow user**: Make user 1 follow user 2
+- **Create Tweet**: Create a tweet from user 2
+- **Get timeline**: Retrieve the timeline for user 1
+- **Unfollow user**: Make user 1 unfollow user 2
 
 ## Logging and Monitoring
 
